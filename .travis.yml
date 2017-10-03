@@ -1,0 +1,12 @@
+language: rust
+cache: cargo
+rust:
+- nightly
+- beta
+- stable
+- 1.17.0
+branches:
+  only:
+    - staging
+    - trying
+    - master
