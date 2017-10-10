@@ -1,5 +1,28 @@
 use std::marker::PhantomData;
 
+#[cfg(test)]
+mod tests;
+
+pub type DynResult<A, E, F> = Result<Trans<Box<DynState<A, E, F>>>, E>;
+
+pub trait DynState<A, E, F> {
+    fn start(&mut self, _args: A) -> DynResult<A, E, F> {
+        Ok(Trans::None)
+    }
+    fn resume(&mut self, _args: A) {}
+    fn pause(&mut self, _args: A) {}
+    fn stop(&mut self, _args: A) {}
+    fn update(&mut self, _args: A) -> DynResult<A, E, F> {
+        Ok(Trans::None)
+    }
+    fn fixed_update(&mut self, _args: A) -> DynResult<A, E, F> {
+        Ok(Trans::None)
+    }
+    fn event(&mut self, _args: A, _event: F) -> DynResult<A, E, F> {
+        Ok(Trans::None)
+    }
+}
+
 pub trait State<A, E, F>: Sized {
     fn start(&mut self, _args: A) -> Result<Trans<Self>, E> {
         Ok(Trans::None)
@@ -15,6 +38,36 @@ pub trait State<A, E, F>: Sized {
     }
     fn event(&mut self, _args: A, _event: F) -> Result<Trans<Self>, E> {
         Ok(Trans::None)
+    }
+}
+
+impl<A, E, F> State<A, E, F> for Box<DynState<A, E, F>> {
+    fn start(&mut self, args: A) -> Result<Trans<Self>, E> {
+        self.as_mut().start(args)
+    }
+
+    fn resume(&mut self, args: A) {
+        self.as_mut().resume(args);
+    }
+
+    fn pause(&mut self, args: A) {
+        self.as_mut().pause(args);
+    }
+
+    fn stop(&mut self, args: A) {
+        self.as_mut().stop(args);
+    }
+
+    fn update(&mut self, args: A) -> Result<Trans<Self>, E> {
+        self.as_mut().update(args)
+    }
+
+    fn fixed_update(&mut self, args: A) -> Result<Trans<Self>, E> {
+        self.as_mut().fixed_update(args)
+    }
+
+    fn event(&mut self, args: A, event: F) -> Result<Trans<Self>, E> {
+        self.as_mut().event(args, event)
     }
 }
 
@@ -54,8 +107,8 @@ where
     pub fn start(&mut self, args: A) -> Result<(), E> {
         if !self.running {
             let trans = self.last().start(args.clone())?;
-            self.handle(args, trans)?;
             self.running = true;
+            self.handle(args, trans)?;
 
             Ok(())
         } else {
