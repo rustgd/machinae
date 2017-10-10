@@ -3,6 +3,8 @@ use std::marker::PhantomData;
 #[cfg(test)]
 mod tests;
 
+pub type DynMachine<A, E, F> = StateMachine<A, E, F, Box<DynState<A, E, F>>>;
+
 pub type DynResult<A, E, F> = Result<Trans<Box<DynState<A, E, F>>>, E>;
 
 pub trait DynState<A, E, F> {

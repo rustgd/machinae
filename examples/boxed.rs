@@ -4,7 +4,7 @@
 
 extern crate machina;
 
-use machina::{DynResult, DynState, StateMachine, Trans};
+use machina::{DynMachine, DynResult, DynState, Trans};
 
 struct State1;
 
@@ -32,7 +32,7 @@ impl DynState<i32, (), ()> for State2 {
 }
 
 fn run() -> Result<(), ()> {
-    let mut machine = StateMachine::new(Box::new(State1) as Box<DynState<_, _, _>>);
+    let mut machine = DynMachine::new(Box::new(State1));
 
     machine.start(1)?;
     machine.update(2)?;
