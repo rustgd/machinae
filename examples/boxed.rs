@@ -9,7 +9,7 @@ use machina::{DynMachine, DynResult, DynState, Trans};
 struct State1;
 
 impl DynState<i32, (), ()> for State1 {
-    fn start(&mut self, args: i32) ->  DynResult<i32, (), ()> {
+    fn start(&mut self, args: i32) -> DynResult<i32, (), ()> {
         println!("Starting with {}", args);
 
         Ok(Trans::None)
