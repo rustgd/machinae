@@ -1,5 +1,12 @@
 # machina
 
+`machina` is a generic state machine
+intended to be primarily used in game development.
+
+If you need help, ask [on the rust-gamedev Gitter channel][gi].
+
+[gi]: https://gitter.im/rust-gamedev/Lobby
+
 ## Contribution
 
 Contribution is highly welcome! If you'd like another
