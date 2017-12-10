@@ -99,14 +99,8 @@ pub trait DynState<A, E, F> {
 }
 
 /// A helper type used for the first type parameter of the
-/// state machine in case the argument (`A`) is a reference.
-pub struct Ref<A: ?Sized> {
-    marker: PhantomData<A>,
-}
-
-/// A helper type used for the first type parameter of the
 /// state machine in case the argument (`A`) is a mutable reference.
-pub struct RefMut<A: ?Sized> {
+pub struct Ref<A: ?Sized> {
     marker: PhantomData<A>,
 }
 
@@ -173,6 +167,15 @@ impl<A, E, F> State<A, E, F> for Box<DynState<A, E, F>> {
 }
 
 /// A simple, generic state machine.
+/// The argument can be
+///
+/// 1) an owned value which implements `Clone`
+/// 2) an immutable reference
+/// 3) a mutable reference
+///
+/// **In case 3 you need to specify the type of the
+/// state machine by either writing `StateMachine<Ref<str>, _, _, _>`
+/// or by using `StateMachineRef`.**
 pub struct StateMachine<A, E, F, S> {
     marker: PhantomData<(A, E, F)>,
     running: bool,
@@ -362,18 +365,10 @@ macro_rules! pass_on {
 }
 
 macro_rules! clone {
-    ($a:ident) => {{$a.clone()}};
+    ($a:ident) => {{Clone::clone(& $a)}};
 }
 
 impl<A, E, F, S> StateMachine<Ref<A>, E, F, S>
-where
-    A: ?Sized,
-    S: for<'a> State<&'a A, E, F>,
-{
-    def_machine!(&A, pass_on);
-}
-
-impl<A, E, F, S> StateMachine<RefMut<A>, E, F, S>
 where
     A: ?Sized,
     S: for<'a> State<&'a mut A, E, F>,
@@ -398,10 +393,10 @@ where
     }
 }
 
-/// A state machine accepting a reference as argument.
-pub type StateMachineRef<A, E, F, S> = StateMachine<Ref<A>, E, F, S>;
 /// A state machine accepting a mutable reference as argument.
-pub type StateMachineRefMut<A, E, F, S> = StateMachine<RefMut<A>, E, F, S>;
+/// **You need to use this in case you're passing a mutable argument to
+/// the state machine, otherwise the compiler will complain.**
+pub type StateMachineRef<A, E, F, S> = StateMachine<Ref<A>, E, F, S>;
 
 /// A potential transition to another state.
 pub enum Trans<S> {

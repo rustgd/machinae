@@ -7,10 +7,11 @@ enum HelloState {
     Bye,
 }
 
-impl<'a> State<&'a str, (), ()> for HelloState {
-    fn start(&mut self, args: &str) -> Result<Trans<Self>, ()> {
+impl<'a> State<&'a mut i32, (), ()> for HelloState {
+    fn start(&mut self, args: &mut i32) -> Result<Trans<Self>, ()> {
         match *self {
             HelloState::Hello => {
+                *args *= *args;
                 println!("Hey, {}", args);
             }
             HelloState::Bye => {
@@ -21,9 +22,10 @@ impl<'a> State<&'a str, (), ()> for HelloState {
         Ok(Trans::None)
     }
 
-    fn update(&mut self, args: &str) -> Result<Trans<Self>, ()> {
+    fn update(&mut self, args: &mut i32) -> Result<Trans<Self>, ()> {
         match *self {
             HelloState::Hello => {
+                *args += 1;
                 println!("Update: {}", args);
 
                 Ok(Trans::Push(HelloState::Bye))
@@ -34,11 +36,13 @@ impl<'a> State<&'a str, (), ()> for HelloState {
 }
 
 fn run() -> Result<(), ()> {
-    let mut machine = StateMachine::new(HelloState::Hello);
+    // note that we use `StateMachineRef` here.
+    let mut machine = StateMachineRef::new(HelloState::Hello);
 
-    machine.start("you!")?;
-    machine.update("Whatever")?;
-    machine.update("Irrelevant")?;
+    let mut context = 5;
+    machine.start(&mut context)?;
+    machine.update(&mut context)?;
+    machine.update(&mut context)?;
 
     assert!(!machine.running());
 
