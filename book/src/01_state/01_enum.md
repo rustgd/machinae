@@ -1,0 +1,1 @@
+# Implementing `State` for an enum
