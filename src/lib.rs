@@ -98,6 +98,12 @@ pub trait DynState<A, E, F> {
     }
 }
 
+/// A helper type used for the first type parameter of the
+/// state machine in case the argument (`A`) is a mutable reference.
+pub struct Ref<A: ?Sized> {
+    marker: PhantomData<A>,
+}
+
 /// `State` trait with several callbacks which allow state transitions.
 /// It's recommended that you use this with an enum; if you prefer trait objects,
 /// you should use `DynState` instead.
@@ -161,6 +167,15 @@ impl<A, E, F> State<A, E, F> for Box<DynState<A, E, F>> {
 }
 
 /// A simple, generic state machine.
+/// The argument can be
+///
+/// 1) an owned value which implements `Clone`
+/// 2) an immutable reference
+/// 3) a mutable reference
+///
+/// **In case 3 you need to specify the type of the
+/// state machine by either writing `StateMachine<Ref<str>, _, _, _>`
+/// or by using `StateMachineRef`.**
 pub struct StateMachine<A, E, F, S> {
     marker: PhantomData<(A, E, F)>,
     running: bool,
@@ -191,21 +206,18 @@ impl<A, E, F, S> StateMachine<A, E, F, S> {
     }
 }
 
-impl<A, E, F, S> StateMachine<A, E, F, S>
-where
-    A: Clone,
-    S: State<A, E, F>,
-{
+macro_rules! def_machine {
+    ( $param:ty, $clone:ident ) => {
     /// Starts the state machine, calling `.start` on the initial state.
     ///
     /// ## Panics
     ///
     /// Panics if the state machine is running already.
-    pub fn start(&mut self, args: A) -> Result<(), E> {
+    pub fn start(&mut self, args: $param) -> Result<(), E> {
         if !self.running {
-            let trans = self.last().start(args.clone())?;
+            let trans = self.last().start($clone!(args))?;
             self.running = true;
-            self.handle(args, trans)?;
+            self.handle($clone!(args), trans)?;
 
             Ok(())
         } else {
@@ -218,11 +230,11 @@ where
     /// ## Panics
     ///
     /// Panics if the state machine is not running.
-    pub fn update(&mut self, args: A) -> Result<(), E> {
+    pub fn update(&mut self, args: $param) -> Result<(), E> {
         self.assert_running();
-        let trans = self.last().update(args.clone())?;
+        let trans = self.last().update($clone!(args))?;
 
-        self.handle(args, trans)
+        self.handle($clone!(args), trans)
     }
 
     /// Performs a fixed update on the current state
@@ -231,11 +243,11 @@ where
     /// ## Panics
     ///
     /// Panics if the state machine is not running.
-    pub fn fixed_update(&mut self, args: A) -> Result<(), E> {
+    pub fn fixed_update(&mut self, args: $param) -> Result<(), E> {
         self.assert_running();
-        let trans = self.last().fixed_update(args.clone())?;
+        let trans = self.last().fixed_update($clone!(args))?;
 
-        self.handle(args, trans)
+        self.handle($clone!(args), trans)
     }
 
     /// Sends an `event` to the current state.
@@ -243,11 +255,11 @@ where
     /// ## Panics
     ///
     /// Panics if the state machine is not running.
-    pub fn event(&mut self, args: A, event: F) -> Result<(), E> {
+    pub fn event(&mut self, args: $param, event: F) -> Result<(), E> {
         self.assert_running();
-        let trans = self.last().event(args.clone(), event)?;
+        let trans = self.last().event($clone!(args), event)?;
 
-        self.handle(args, trans)
+        self.handle($clone!(args), trans)
     }
 
     /// Stops the state machine.
@@ -278,25 +290,26 @@ where
     /// ## Panics
     ///
     /// Panics if the state machine is not running.
-    pub fn stop(&mut self, args: A) {
+    pub fn stop(&mut self, args: $param) {
         self.assert_running();
 
         if let Some(s) = self.stack.last_mut() {
-            s.pause(args.clone());
+            s.pause($clone!(args));
         }
         while let Some(mut s) = self.stack.pop() {
-            s.stop(args.clone());
+            s.stop($clone!(args));
         }
         self.running = false;
     }
 
-    fn handle(&mut self, args: A, trans: Trans<S>) -> Result<(), E> {
+    fn handle(&mut self, args: $param, trans: Trans<S>) -> Result<(), E> {
         match trans {
             Trans::Push(mut s) => {
-                self.last().pause(args.clone());
+                self.last().pause($clone!(args));
 
-                self.handle(args.clone(), s.start(args.clone())?)?;
-                s.resume(args);
+                let trans = s.start($clone!(args))?;
+                self.handle($clone!(args), trans)?;
+                s.resume($clone!(args));
                 self.stack.push(s);
 
                 Ok(())
@@ -304,25 +317,26 @@ where
             Trans::Switch(mut s) => {
                 {
                     let old = self.last();
-                    old.pause(args.clone());
-                    old.stop(args.clone());
+                    old.pause($clone!(args));
+                    old.stop($clone!(args));
                 }
 
-                self.handle(args.clone(), s.start(args.clone())?)?;
-                s.resume(args);
+                let trans = s.start($clone!(args))?;
+                self.handle($clone!(args), trans)?;
+                s.resume($clone!(args));
                 *self.last() = s;
 
                 Ok(())
             }
             Trans::Pop => {
                 let mut old = self.stack.pop().unwrap();
-                old.pause(args.clone());
-                old.stop(args.clone());
+                old.pause($clone!(args));
+                old.stop($clone!(args));
 
                 // We need tp create a boolean here because the borrow checker
                 // can't validate this otherwise.
                 let resumed = if let Some(s) = self.stack.last_mut() {
-                    s.resume(args.clone());
+                    s.resume($clone!(args));
 
                     true
                 } else {
@@ -330,19 +344,44 @@ where
                 };
 
                 if !resumed {
-                    self.stop(args);
+                    self.stop($clone!(args));
                 }
 
                 Ok(())
             }
             Trans::None => Ok(()),
             Trans::Quit => {
-                self.stop(args);
+                self.stop($clone!(args));
 
                 Ok(())
             }
         }
     }
+    };
+}
+
+macro_rules! pass_on {
+    ($a:ident) => {$a};
+}
+
+macro_rules! clone {
+    ($a:ident) => {{Clone::clone(& $a)}};
+}
+
+impl<A, E, F, S> StateMachine<Ref<A>, E, F, S>
+where
+    A: ?Sized,
+    S: for<'a> State<&'a mut A, E, F>,
+{
+    def_machine!(&mut A, pass_on);
+}
+
+impl<A, E, F, S> StateMachine<A, E, F, S>
+where
+    A: Clone,
+    S: State<A, E, F>,
+{
+    def_machine!(A, clone);
 }
 
 impl<A, E, F, S> Default for StateMachine<A, E, F, S>
@@ -353,6 +392,11 @@ where
         StateMachine::new(Default::default())
     }
 }
+
+/// A state machine accepting a mutable reference as argument.
+/// **You need to use this in case you're passing a mutable argument to
+/// the state machine, otherwise the compiler will complain.**
+pub type StateMachineRef<A, E, F, S> = StateMachine<Ref<A>, E, F, S>;
 
 /// A potential transition to another state.
 pub enum Trans<S> {
