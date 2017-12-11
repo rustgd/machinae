@@ -10,3 +10,22 @@ branches:
     - staging
     - trying
     - master
+after_success: |
+  [ $TRAVIS_BRANCH = master ] &&
+  [ $TRAVIS_PULL_REQUEST = false ] &&
+  [ $TRAVIS_RUST_VERSION = stable ] &&
+  which mdbook || cargo install mdbook &&
+  cd book &&
+  mdbook build &&
+  cd .. &&
+  mkdir ../ghp &&
+  cp -r book/book ../ghp/ &&
+  echo "Checking out gh-pages" &&
+  git checkout --orphan gh-pages &&
+  rm -rf ./* &&
+  cp -r ../ghp/* ./ &&
+  git commit --quiet -m "Update page" &&
+  git push -f https://${GH_TOKEN}@github.com/rustgd/machina.git gh-pages
+env:
+  global:
+    secure: c0YggmbZ0G0ncDsV/FUPXI0SRMFyQXXS8WIv1FyrqpKV5yRK5OjOUOCspX1uJakERxR/jzzhkLsbKX9ZntNC11eaVwG8AvoeNqTYg9F66MgRvekn5VdAhDs2TNprpgpD94DX2EgYetzYRrFdM1KnBcQbm8yr/BxkIom6Zf5Us5lfVEDw1tmxRTnVkTJLLGu/sk4H+4Molo0ns/8cosTqk01zOjHEt3sBJqJ8wyRpUVSs2TQedlNfsyVwvfl9Mr6av+DnaR1vQenGCKLYWNgaY0CHKim+LohHMTnCVwG8cRtVWagJWxRTm+XDj2SpWDcTJk9esYzmZHxiMlkCr8qXA+66F1y/X8Utc82sFlIkoqW/fvjgNjrmaJ2aqEfBAjkUhBDmmUVVYLu+JtNqCeghP+NDtgWdW4qvElcwracnVQKFO0w/8x9qFHyO5DUXfRTsrrBjvQw/mI/YKddsXvUoHHlLMGNYu5k9HFfReoWJc6yqV9kMBKCuT+BD1rxfFpISKBenR9OmpmRT65RatOOrEwSR8h7yERGg3DoahXTDzvZ1pKPxoFn+F4YPyf4cKbgp8KKgj0vk3cJrHGMdiq49xBQjMeahIj0gQ3ilFqbJdfLEa1zKLV74BifG9CaD1pUbojteohSKRTO3+sTKZbElO6PH4S1fkpbNUi0omK/UJTQ=
