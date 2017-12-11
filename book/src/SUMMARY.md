@@ -1,6 +1,6 @@
 # Summary
 
-[machina](machina.md)
+[Introduction](machina.md)
 
 * [Implementing State](01_state.md)
     * [For an enum](01_state/01_enum.md)
