@@ -17,12 +17,12 @@ after_success: |
   which mdbook || cargo install mdbook &&
   cd book &&
   mdbook build &&
-  cd ..
-deploy:
-  provider: pages
-  local_dir: "book/book"
-  skip_cleanup: true
-  github_token: GH_TOKEN # Set in travis-ci.org dashboard
-  on:
-    branch: master
-    condition: "$TRAVIS_RUST_VERSION = stable"
+  cd .. &&
+  mkdir ../ghp &&
+  cp -r book/book ../ghp/ &&
+  echo "Checking out gh-pages" &&
+  git checkout --orphan gh-pages &&
+  rm -rf ./* &&
+  cp -r ../ghp/* ./ &&
+  git commit --quiet -m "Update page" &&
+  git push -f https://${GH_TOKEN}@github.com/rustgd/machina.git gh-pages
