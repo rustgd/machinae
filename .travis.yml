@@ -26,6 +26,10 @@ after_success: |
   cp -r ../ghp/* ./ &&
   git commit --quiet -m "Update page" &&
   git push -f https://${GH_TOKEN}@github.com/rustgd/machina.git gh-pages
-env:
-  global:
-    secure: "H0ip2nnpM0OAUYeYYjFfbKnmEKHDDCELjx24YMNRaL90PhxqO3coTZUh3O/M8bK5O163YjRKibTgB/s8oFLsH4RsS1IFJdnpQ7H0iUTeuvYApMy8fTDrt79Xi4hX74Zp4WSEa6mXvjxsUpj1tH2gvO9HEwJVDq1iDlktqsQMa9osUjxg3VXFPK6+0Rg3m2mKRFmYb5DwodtC3bjmw51Vaqd2K/UQ3l4al3ceK/rirN6Xs8DuHV6o1xW9Aeq32ouc6Cdp1A1GqGNx1SwCJuRW1rfUDMKAiTjFVdTbsUFP6A9a+Ecd1mnCKP4gL6aJovj6wPiVfKsD8D0iuqtuXWSVbnQsHLVXTAm/WUOlHlDeCdjUOLxl2V25LeNGTxI/AhzoJtZRVBiNMbsfwcw9H+rYq8SUTdk3jY26JMdQX/ERaJFfAPUlCxH9BaPMYmuniju5nvA3lYQ7KmMmPVbNrCJVcHC1jWS3Nb1sVXgw2e0aRWzXUI+jj2W+W4GvDeBXeFlndCW0tiwCfSy0j5P70VWc1VM0UenVYCC6C0dQXZ3Red1t/r9Wr/vsfClml6PTz1EORu21ZuHUBsfSqShz0Y/v7kv5+I05TjNVZ9T6YBZrWUkACRwkC6/tNA5/ZslkIN06Kd50RsFFZeBjw8ppiyQEvrN12ny7BbPMG2lcse9axaU="
+deploy:
+  provider: pages
+  skip_cleanup: true
+  github_token: $GITHUB_TOKEN # Set in travis-ci.org dashboard
+  on:
+    branch: master
+    condition: "$TRAVIS_RUST_VERSION = stable"
