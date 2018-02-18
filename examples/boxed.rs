@@ -2,9 +2,9 @@
 // While this allows easier extension from the outside, it's not
 // as performant as using an enum.
 
-extern crate machina;
+extern crate machinae;
 
-use machina::{DynMachine, DynResult, DynState, Trans};
+use machinae::{DynMachine, DynResult, DynState, Trans};
 
 struct State1;
 

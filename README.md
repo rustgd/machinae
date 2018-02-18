@@ -1,6 +1,6 @@
-# machina
+# machinae
 
-`machina` is a generic state machine
+`machinae` is a generic state machine
 intended to be primarily used in game development.
 
 If you need help, ask [on the rust-gamedev Gitter channel][gi].
@@ -19,7 +19,7 @@ MIT/Apache-2.
 
 ## License
 
-`machina` is distributed under the terms of both the MIT 
+`machinae` is distributed under the terms of both the MIT 
 license and the Apache License (Version 2.0).
 
 See [LICENSE-APACHE](LICENSE-APACHE) and [LICENSE-MIT](LICENSE-MIT).

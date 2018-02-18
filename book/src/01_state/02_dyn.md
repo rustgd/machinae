@@ -1,16 +1,16 @@
 # Implementing `State` for multiple types
 
-This chapter describes how to work with machina
+This chapter describes how to work with machinae
 if you want to use trait objects for your states.
 This allows you to better organize the states using multiple
 types, but it's not as efficient since it uses dynamic dispatch
 and allocates on the heap.
 
-You'll need to import the following machina types,
+You'll need to import the following machinae types,
 plus your argument, error and event types:
 
 ```rust,ignore
-use machina::{DynMachine, DynResult, DynState, Trans};
+use machinae::{DynMachine, DynResult, DynState, Trans};
 use some_module::{Argument, Error, Event};
 ```
 

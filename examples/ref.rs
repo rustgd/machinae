@@ -1,6 +1,6 @@
-extern crate machina;
+extern crate machinae;
 
-use machina::*;
+use machinae::*;
 
 enum HelloState {
     Hello,

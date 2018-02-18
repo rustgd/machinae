@@ -1,13 +1,13 @@
-# machina
+# machinae
 
-This is the documentation for [machina][ma], a generic state machine
+This is the documentation for [machinae][ma], a generic state machine
 intended to be primarily used in game development.
 
 In addition to this book you can find a list of the items in
 the [API documentation][ap].
 
-[ma]: https://github.com/rustgd/machina
-[ap]: https://docs.rs/machina
+[ma]: https://github.com/rustgd/machinae
+[ap]: https://docs.rs/machinae
 
 You'll mostly need the types `StateMachine`, `State` and `Trans`.
 The state machine stores a stack of states and updates that stack
@@ -19,7 +19,7 @@ This book is split into five chapters, this being the introduction. After this c
 
  * [Implementing State][im]
  * [State methods and transitions][me]
- * [Using machina outside of game development][us]
+ * [Using machinae outside of game development][us]
  * [Troubleshooting][tr]
 
 [im]: ./01_state.html
@@ -30,9 +30,9 @@ This book is split into five chapters, this being the introduction. After this c
 ## Example code
 
 ```rust
-extern crate machina;
+extern crate machinae;
 
-use machina::*;
+use machinae::*;
 
 #[derive(Debug)]
 struct Error;

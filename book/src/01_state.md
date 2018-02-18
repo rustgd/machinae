@@ -5,7 +5,7 @@ For the state lifecycle see the [second chapter][se].
 
 [se]: ./02_methods.html
 
-`machina` is designed to be as lightweight as possible.
+`machinae` is designed to be as lightweight as possible.
 To achieve that, the `State`s in the state machine are strongly
 typed (in lieu of using trait objects). That means that your
 state is likely to be an enum. However, for some scenarios you
