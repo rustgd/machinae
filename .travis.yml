@@ -26,4 +26,4 @@ after_success: |
   cp -r ../ghp/* ./ &&
   git add -A &&
   git commit --quiet -m "Update page" &&
-  git push -f https://${GH_TOKEN}@github.com/rustgd/machina.git gh-pages
+  git push -f https://${GH_TOKEN}@github.com/rustgd/machinae.git gh-pages

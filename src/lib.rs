@@ -1,11 +1,11 @@
-//! # machina
+//! # machinae
 //!
-//! `machina` provides a generic state machine with a strong focus efficiency.
+//! `machinae` provides a generic state machine with a strong focus efficiency.
 //! It expects you to use enums for the states by default, but you can also work with
 //! trait objects by using the `Dyn*` types.
 //!
 //! ```
-//! use machina::{State, StateMachine, Trans};
+//! use machinae::{State, StateMachine, Trans};
 //!
 //! # #[allow(unused)]
 //! struct Event {}
@@ -272,7 +272,7 @@ macro_rules! def_machine {
     /// ## Examples
     ///
     /// ```
-    /// # use machina::{State, StateMachine};
+    /// # use machinae::{State, StateMachine};
     /// # struct A; impl State<(), (), ()> for A {}
     /// # let mut machine = StateMachine::new(A);
     /// # fn shut_down_state_machine() -> bool { true }

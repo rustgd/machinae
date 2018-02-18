@@ -1,3 +1,3 @@
-# Using machina outside of game development
+# Using machinae outside of game development
 
 [TODO]

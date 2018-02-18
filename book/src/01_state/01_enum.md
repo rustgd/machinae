@@ -21,7 +21,7 @@ use some_module::{Argument, Event, Error};
 And then you can finally implement `State`:
 
 ```rust,ignore
-use machina::{State, Trans};
+use machinae::{State, Trans};
 
 impl State<Argument, Error, Event> for MyState {}
 ```
