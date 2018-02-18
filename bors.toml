@@ -1,2 +1,2 @@
-status = [ "continuous-integration/travis-ci/push"]
+status = ["continuous-integration/travis-ci/push"]
 block_labels = ["in progress", "working", "postponed"]
