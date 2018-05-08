@@ -1,0 +1,29 @@
+language: rust
+cache: cargo
+rust:
+- nightly
+- beta
+- stable
+- 1.19.0
+branches:
+  only:
+    - staging
+    - trying
+    - master
+after_success: |
+  [ $TRAVIS_BRANCH = master ] &&
+  [ $TRAVIS_PULL_REQUEST = false ] &&
+  [ $TRAVIS_RUST_VERSION = stable ] &&
+  which mdbook || cargo install mdbook &&
+  cd book &&
+  mdbook build &&
+  cd .. &&
+  mkdir ../ghp &&
+  cp -r book/book/* ../ghp/ &&
+  echo "Checking out gh-pages" &&
+  git checkout --orphan gh-pages &&
+  rm -rf ./* &&
+  cp -r ../ghp/* ./ &&
+  git add -A &&
+  git commit --quiet -m "Update page" &&
+  git push -f https://${GH_TOKEN}@github.com/rustgd/machinae.git gh-pages
